@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Github Repositories</string>
+    <string name="repos_not_found">Não conseguimos encontrar nenhum repositório correspondente</string>
 </resources>
