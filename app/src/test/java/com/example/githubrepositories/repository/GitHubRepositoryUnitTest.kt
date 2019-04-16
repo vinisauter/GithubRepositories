@@ -2,7 +2,8 @@ package com.example.githubrepositories.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.githubrepositories.livedata.LiveDataUtils
-import com.example.githubrepositories.model.Repo
+import com.example.githubrepositories.repository.model.Result
+import com.example.githubrepositories.repository.remote.GitHubService
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -30,11 +31,10 @@ class GitHubRepositoryUnitTest {
     private val testScheduler = TestScheduler()
 
     @Test
-    fun gitHubServiceListUsersRepos() {
-        val testObserver = TestSubscriber<Repo>()
-        GitHubRepository.getInstance()
-            .remoteGitService
-            .listRepos("android", 5, 1)
+    fun gitHubServiceTest() {
+        val testObserver = TestSubscriber<Result>()
+        GitHubService.create()
+            .searchListRepos("android", 5, 1)
             .subscribe(testObserver)
         testScheduler.advanceTimeBy(60, TimeUnit.SECONDS)
 //        testObserver.assertValue(--)
@@ -43,11 +43,10 @@ class GitHubRepositoryUnitTest {
     }
 
     @Test
-    fun gitHubServiceListRepos() {
+    fun gitHubServiceLiveDataTest() {
         val liveData = LiveDataUtils.asLiveData(
-            GitHubRepository.getInstance()
-                .remoteGitService
-                .listRepos("android", 5, 1)
+            GitHubService.create()
+                .searchListRepos("android", 5, 1)
         )
         liveData.observeForever { t ->
             if (t.error != null)

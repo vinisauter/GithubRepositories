@@ -5,9 +5,15 @@ import androidx.multidex.MultiDexApplication
 
 
 class BaseApplication : MultiDexApplication() {
-    override fun onCreate() {
-        super.onCreate()
-        Log.i("BaseApplication", "BaseApplication.onCreate")
+
+    companion object {
+        private lateinit var instance_: BaseApplication
+        fun getInstance() = instance_
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        instance_ = this
+        Log.i("BaseApplication", "BaseApplication.onCreate")
+    }
 }

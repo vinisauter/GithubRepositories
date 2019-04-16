@@ -61,5 +61,17 @@ class TaskResult<F>
         fun equals(a: Any?, b: Any?): Boolean {
             return a == b || a != null && a == b
         }
+
+        fun <T> loading(): TaskResult<T> {
+            return TaskResult(null, null)
+        }
+
+        fun <T> error(throwable: Throwable): TaskResult<T> {
+            return TaskResult(null, throwable)
+        }
+
+        fun <T> success(t: T): TaskResult<T> {
+            return TaskResult(t, null)
+        }
     }
 }

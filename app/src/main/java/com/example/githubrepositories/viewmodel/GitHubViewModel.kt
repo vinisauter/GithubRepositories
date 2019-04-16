@@ -1,15 +1,19 @@
 package com.example.githubrepositories.viewmodel
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
+import com.example.githubrepositories.repository.GitHubRepositoryContract
+import com.example.githubrepositories.repository.ServiceLocator
+import com.example.githubrepositories.repository.model.Repository
+
+private const val PAGE_SIZE = 10
 
 class GitHubViewModel : ViewModel() {
-    private val _data = MutableLiveData<String>()
-    val data: LiveData<String>
-        get() = _data
+    private val repository: GitHubRepositoryContract =
+        ServiceLocator.instance().getRepository(GitHubRepositoryContract.Type.REMOTE)
 
-    init {
-        _data.value = "Hello, Jetpack!"
+    fun searchRepositories(query: String): LiveData<PagedList<Repository>> {
+        return repository.searchRepositories(query, PAGE_SIZE).pagedList
     }
 }

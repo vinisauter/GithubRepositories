@@ -71,6 +71,9 @@ open class TaskLiveData<T> : LiveData<TaskResult<T>> {
     }
 
     companion object {
+        fun <T> loading(): TaskLiveData<T> {
+            return TaskLiveData(TaskResult<T>(null, null))
+        }
 
         fun <T> error(throwable: Throwable): TaskLiveData<T> {
             return TaskLiveData(TaskResult<T>(null, throwable))
