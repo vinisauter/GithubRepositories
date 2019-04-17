@@ -45,6 +45,16 @@ class TaskResult<F>
         return "TaskResult{" + value.toString() + " " + error.toString() + "}"
     }
 
+    fun isLoading(): Boolean {
+        return value == null && error == null
+    }
+
+    fun isFailed(): Boolean {
+        return error != null
+    }
+    fun isSucceed(): Boolean {
+        return value != null
+    }
     companion object {
 
         /**

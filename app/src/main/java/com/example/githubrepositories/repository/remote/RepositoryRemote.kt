@@ -24,7 +24,7 @@ class RepositoryRemote(
         }
         return Listing(
             pagedList = livePagedList,
-            networkState = Transformations.switchMap(sourceFactory.sourceLiveData) {
+            queryState = Transformations.switchMap(sourceFactory.sourceLiveData) {
                 it.network
             },
             retry = {

@@ -7,7 +7,7 @@ import com.example.githubrepositories.repository.model.Result
 
 data class Listing<T>(
     val pagedList: LiveData<PagedList<T>>,
-    val networkState: LiveData<TaskResult<Result>>,
+    val queryState: LiveData<TaskResult<Result>>,
     val refreshState: LiveData<TaskResult<Result>>,
     val refresh: () -> Unit,
     val retry: () -> Unit

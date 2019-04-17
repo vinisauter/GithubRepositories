@@ -12,7 +12,7 @@ interface AppDao {
     @Query("SELECT * FROM repository")
     fun getAll(): List<Repository>
 
-    @Query("SELECT * FROM repository WHERE name = :name")
+    @Query("SELECT * FROM repository WHERE name LIKE :name")
     fun searchRepositories(name: String): DataSource.Factory<Int, Repository>
 
     @Insert
@@ -21,6 +21,6 @@ interface AppDao {
     @Delete
     fun delete(repository: Repository)
 
-    @Query("DELETE FROM repository WHERE name = :name")
+    @Query("DELETE FROM repository WHERE name LIKE :name")
     fun deleteByName(name: String)
 }
