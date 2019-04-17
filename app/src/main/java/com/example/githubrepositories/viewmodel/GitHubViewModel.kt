@@ -17,6 +17,7 @@ class GitHubViewModel : ViewModel() {
         repository.searchRepositories(it, PAGE_SIZE)
     }
     val posts = Transformations.switchMap(repoResult) { it.pagedList }!!
+    val queryState = Transformations.switchMap(repoResult) { it.queryState }!!
     val refreshState = Transformations.switchMap(repoResult) { it.refreshState }!!
 
     fun refresh() {

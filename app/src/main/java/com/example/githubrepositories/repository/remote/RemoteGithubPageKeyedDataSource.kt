@@ -64,7 +64,7 @@ class RemoteGithubPageKeyedDataSource(
         val currentPage = params.key
         val nextPage = currentPage + 1
 
-        postInitialState(TaskResult.loading())
+        postAfterState(TaskResult.loading())
         apiService.searchListRepos(
             query = searchQuery,
             page = currentPage,

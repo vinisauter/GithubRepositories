@@ -49,6 +49,9 @@ class MainActivity : AppCompatActivity() {
             adapter.submitList(it)
         })
         model.refreshState.observe(this, Observer {
+            progressBar.visibility = StateItemViewHolder.toVisibility(it?.isLoading())
+        })
+        model.refreshState.observe(this, Observer {
             adapter.setState(it)
         })
         model.refreshState.observe(this, Observer {
@@ -88,12 +91,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     class RepositoryAdapter(private val retryCallback: () -> Unit) :
-        PagedListAdapter<Repository, RecyclerView.ViewHolder>(COMPARATOR) {
-        private var networkState: TaskResult<Result>? = null
+            PagedListAdapter<Repository, RecyclerView.ViewHolder>(COMPARATOR) {
+        private var state: TaskResult<Result>? = null
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return when (viewType) {
                 R.layout.repo_item -> RepositoryViewHolder.create(parent)
-                R.layout.state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
+                R.layout.state_item -> StateItemViewHolder.create(parent, retryCallback)
                 else -> throw IllegalArgumentException("unknown view type $viewType")
             }
         }
@@ -101,16 +104,16 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             when (getItemViewType(position)) {
                 R.layout.repo_item -> (holder as RepositoryViewHolder).bind(getItem(position))
-                R.layout.state_item -> (holder as NetworkStateItemViewHolder).bindTo(
-                    networkState
+                R.layout.state_item -> (holder as StateItemViewHolder).bindTo(
+                        state
                 )
             }
         }
 
         override fun onBindViewHolder(
-            holder: RecyclerView.ViewHolder,
-            position: Int,
-            payloads: MutableList<Any>
+                holder: RecyclerView.ViewHolder,
+                position: Int,
+                payloads: MutableList<Any>
         ) {
             if (payloads.isNotEmpty()) {
                 val item = getItem(position)
@@ -120,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        private fun hasExtraRow() = networkState != null && networkState!!.value != null
+        private fun hasExtraRow() = state != null && state!!.value != null
 
         override fun getItemViewType(position: Int): Int {
             return if (hasExtraRow() && position == itemCount - 1) {
@@ -134,10 +137,10 @@ class MainActivity : AppCompatActivity() {
             return super.getItemCount() + if (hasExtraRow()) 1 else 0
         }
 
-        fun setState(newNetworkState: TaskResult<Result>?) {
-            val previousState = this.networkState
+        fun setState(newState: TaskResult<Result>?) {
+            val previousState = this.state
             val hadExtraRow = hasExtraRow()
-            this.networkState = newNetworkState
+            this.state = newState
             val hasExtraRow = hasExtraRow()
             if (hadExtraRow != hasExtraRow) {
                 if (hadExtraRow) {
@@ -145,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     notifyItemInserted(super.getItemCount())
                 }
-            } else if (hasExtraRow && previousState != newNetworkState) {
+            } else if (hasExtraRow && previousState != newState) {
                 notifyItemChanged(itemCount - 1)
             }
         }
@@ -153,10 +156,10 @@ class MainActivity : AppCompatActivity() {
         companion object {
             val COMPARATOR = object : DiffUtil.ItemCallback<Repository>() {
                 override fun areContentsTheSame(oldItem: Repository, newItem: Repository): Boolean =
-                    oldItem == newItem
+                        oldItem == newItem
 
                 override fun areItemsTheSame(oldItem: Repository, newItem: Repository): Boolean =
-                    oldItem.id?.equals(newItem.id) ?: (newItem.id == null)
+                        oldItem.id?.equals(newItem.id) ?: (newItem.id == null)
             }
         }
     }
@@ -190,9 +193,9 @@ class MainActivity : AppCompatActivity() {
             if (post?.owner?.avatar_url?.startsWith("http") == true) {
                 thumbnail.visibility = View.VISIBLE
                 Picasso.get()
-                    .load(post.owner?.avatar_url)
+                        .load(post.owner?.avatar_url)
 //                    .centerCrop()
-                    .into(thumbnail)
+                        .into(thumbnail)
             } else {
                 thumbnail.visibility = View.INVISIBLE
             }
@@ -201,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         companion object {
             fun create(parent: ViewGroup): RepositoryViewHolder {
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.repo_item, parent, false)
+                        .inflate(R.layout.repo_item, parent, false)
                 return RepositoryViewHolder(view)
             }
         }
@@ -212,9 +215,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class NetworkStateItemViewHolder(
-        view: View,
-        private val retryCallback: () -> Unit
+    class StateItemViewHolder(
+            view: View,
+            private val retryCallback: () -> Unit
     ) : RecyclerView.ViewHolder(view) {
         private val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
         private val retry = view.findViewById<Button>(R.id.retry_button)
@@ -226,18 +229,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun bindTo(networkState: TaskResult<Result>?) {
-            progressBar.visibility = toVisibility(networkState?.isLoading())
-            retry.visibility = toVisibility(networkState?.isFailed())
-            errorMsg.visibility = toVisibility(networkState?.error != null)
-            errorMsg.text = networkState?.error?.localizedMessage ?: ""
+        fun bindTo(state: TaskResult<Result>?) {
+            progressBar.visibility = toVisibility(state?.isLoading())
+            retry.visibility = toVisibility(state?.isFailed())
+            errorMsg.visibility = toVisibility(state?.error != null)
+            errorMsg.text = state?.error?.localizedMessage ?: ""
         }
 
         companion object {
-            fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateItemViewHolder {
+            fun create(parent: ViewGroup, retryCallback: () -> Unit): StateItemViewHolder {
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.state_item, parent, false)
-                return NetworkStateItemViewHolder(view, retryCallback)
+                        .inflate(R.layout.state_item, parent, false)
+                return StateItemViewHolder(view, retryCallback)
             }
 
             fun toVisibility(constraint: Boolean?): Int {
