@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         model.posts.observe(this, Observer<PagedList<Repository>> {
             adapter.submitList(it)
         })
-        model.refreshState.observe(this, Observer {
+        model.queryState.observe(this, Observer {
             progressBar.visibility = StateItemViewHolder.toVisibility(it?.isLoading())
         })
         model.refreshState.observe(this, Observer {
